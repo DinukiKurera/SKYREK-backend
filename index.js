@@ -19,7 +19,7 @@ app.use(
             const token = value.replace("Bearer ","")
             jwt.verify(
                 token,
-                process.env.JWT_SECRET,
+                "supersecretkey123",
                 (err,decoded)=>{
                     if(decoded == null){
                         res.status(403).json({
@@ -38,19 +38,18 @@ app.use(
 )
 
 
-const connectionString = process.env.MONGO_URI
+const connectionString = "mongodb://127.0.0.1:27017/cosmeticsdb";
 
 
 
-mongoose.connect(connectionString).then(
-    ()=>{
-        console.log("Connected to database")
-    }
-).catch(
-    ()=>{
-        console.log("Failed to connect to the database")
-    }
-)
+mongoose.connect("mongodb://127.0.0.1:27017/cosmeticsdb")
+  .then(() => {
+    console.log("✅ Connected to database");
+  })
+  .catch((err) => {
+    console.log("❌ Failed to connect to the database:", err.message);
+  });
+
 
 
 
