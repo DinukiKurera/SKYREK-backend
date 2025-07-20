@@ -67,12 +67,11 @@ export function loginUser(req,res){
                         process.env.JWT_SECRET
                     )
 
+                    return res.json({
+                    name: user.name,
+                    role: user.role 
+                 });
 
-                    res.json({
-                        token : token,
-                        message : "Login successful"
-                        role : user.role,
-                    })
                 }else{
                     res.status(403).json({
                         message : "Incorrect password"
