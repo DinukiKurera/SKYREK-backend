@@ -1,59 +1,70 @@
-import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import userRouter from "./routers/userRouter.js";
-import productRouter from "./routers/productRouter.js";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import cors from "cors";
+import express from "express"
+import mongoose from "mongoose"
+import bodyParser from "body-parser"
+import userRouter from "./routers/userRouter.js"
+import jwt from "jsonwebtoken"
+import productRouter from "./routers/productRouter.js"
+import dotenv from "dotenv"
+import cors from "cors"
+dotenv.config()
 
-dotenv.config();
+const app = express()
 
-const app = express();
 
-// Middleware
-app.use(bodyParser.json());
-app.use(cors());
+app.use(bodyParser.json())
+app.use(cors())
 
-// JWT Authentication Middleware
-app.use((req, res, next) => {
-  const value = req.header("Authorization");
+app.use(
+    (req,res,next)=>{
+        const value = req.header("Authorization")
+        if(value != null){
+            const token = value.replace("Bearer ","")
+            jwt.verify(
+                token,
+                process.env.JWT_SECRET,
+                (err,decoded)=>{
+                    if(decoded == null){
+                        res.status(403).json({
+                            message : "Unauthorized"
+                        })
+                    }else{
+                        req.user = decoded
+                        next()
+                    }                    
+                }
+            )
+        }else{
+            next()
+        }        
+    }
+)
 
-  if (value != null) {
-    const token = value.replace("Bearer ", "");
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err || decoded == null) {
-        return res.status(403).json({
-          message: "Unauthorized",
-        });
-      } else {
-        req.user = decoded;
-        next();
-      }
-    });
-  } else {
-    next(); // No token provided, allow access to public routes
-  }
-});
+const connectionString = process.env.MONGO_URI
 
-// MongoDB Connection
-const connectionString = process.env.MONGO_URI;
 
-mongoose
-  .connect(connectionString)
-  .then(() => {
-    console.log("✅ Connected to database");
-  })
-  .catch(() => {
-    console.log("❌ Failed to connect to the database");
-  });
 
-// Routers
-app.use("/api/users", userRouter);
-app.use("/api/products", productRouter);
+mongoose.connect(connectionString).then(
+    ()=>{
+        console.log("Connected to database")
+    }
+).catch(
+    ()=>{
+        console.log("Failed to connect to the database")
+    }
+)
 
-// Start Server
-app.listen(5000, () => {
-  console.log("🚀 Server started on port 5000");
-});
+
+
+
+
+app.use("/api/users", userRouter)
+app.use("/api/products",productRouter)
+
+
+
+app.listen(5000, 
+   ()=>{
+       console.log("server started")
+   }
+)
