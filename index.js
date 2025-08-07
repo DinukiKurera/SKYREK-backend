@@ -62,6 +62,8 @@ mongoose.connect(connectionString).then(
 app.use("/api/users", userRouter)
 app.use("/api/products",productRouter)
 app.use("/api/orders",orderRouter)
+app.use(express.static('public'));
+
 
 
 app.listen(5000, 
