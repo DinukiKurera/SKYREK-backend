@@ -35,49 +35,64 @@ export function createUser(req,res){
     )
 }
 
-export function loginUser(req, res) {
-  const email = req.body.email;
-  const password = req.body.password;
+export function loginUser(req,res){
+    const email = req.body.email
 
-  User.findOne({ email: email }).then((user) => {
-    if (user == null) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const password = req.body.password
 
-    console.log("Plain password:", password);
-    console.log("Hashed password:", user.password);
-
-    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
-    console.log("Password match:", isPasswordCorrect);
-
-    if (isPasswordCorrect) {
-      const token = jwt.sign(
+    User.findOne(
         {
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          isBlocked: user.isBlocked,
-          isEmailVerified: user.isEmailVerified,
-          image: user.image,
-        },
-        process.env.JWT_SECRET
-      );
+            email : email
+        }
+    ).then(
+        (user)=>{
+            if(user == null){
+                res.status(404).json({
+                    message : "User not found"
+                })
+            }else{
+                const isPasswordCorrect = bcrypt.compareSync(password,user.password)
+                if(isPasswordCorrect){
 
-      return res.json({
-        token: token,
-        message: "Login successful",
-        role: user.role,
-      });
-    } else {
-      return res.status(403).json({ message: "Incorrect password" });
-    }
-  }).catch((err) => {
-    console.error("Login error:", err);
-    return res.status(500).json({ message: "Server error" });
-  });
+                    const token = jwt.sign(
+                        {
+                            email : user.email,
+                            firstName : user.firstName,
+                            lastName : user.lastName,
+                            role : user.role,
+                            isBlocked : user.isBlocked,
+                            isEmailVerified : user.isEmailVerified,
+                            image : user.image
+                        },
+                        process.env.JWT_SECRET
+                    )
+
+
+                    res.json({
+                        token : token,
+                        message : "Login successful",
+                        role : user.role
+                    })
+                }else{
+                    res.status(403).json({
+                        message : "Incorrect password"
+                    })
+                }
+            }
+        }
+    )
 }
 
+export function getUser(req,res){
+    if(req.user == null){
+        res.status(404).json({
+            message : "User not found"
+        })
+    }else{
+        console.log(req.user)
+        res.json(req.user)
+    }
+}
 
 export function isAdmin(req){
     
