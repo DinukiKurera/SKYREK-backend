@@ -9,13 +9,17 @@ const pw = "rrdhiwczusckmwbw"
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-	host: "smtp.gmail.com",
-	port: 587,
-	secure: false,
-	auth: {
-		user: "dinukikurera19@gmail.com",
-		pass: pw,
-	},
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, 
+  service: "gmail",
+  auth: {
+    user: "dinukikurera19@gmail.com",
+    pass: pw, 
+  },
+  tls: {
+    rejectUnauthorized: false, 
+  },
 });
 
 export function createUser(req, res) {
